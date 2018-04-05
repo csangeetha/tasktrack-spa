@@ -13,8 +13,8 @@ defmodule Tasktrack.Users do
 
   ## Examples
 
-      iex> list_users()
-      [%User{}, ...]
+  iex> list_users()
+  [%User{}, ...]
 
   """
   def list_users do
@@ -28,11 +28,11 @@ defmodule Tasktrack.Users do
 
   ## Examples
 
-      iex> get_user!(123)
-      %User{}
+  iex> get_user!(123)
+  %User{}
 
-      iex> get_user!(456)
-      ** (Ecto.NoResultsError)
+  iex> get_user!(456)
+  ** (Ecto.NoResultsError)
 
   """
   def get_user!(id), do: Repo.get!(User, id)
@@ -42,18 +42,27 @@ defmodule Tasktrack.Users do
 
   ## Examples
 
-      iex> create_user(%{field: value})
-      {:ok, %User{}}
+  iex> create_user(%{field: value})
+  {:ok, %User{}}
 
-      iex> create_user(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+  iex> create_user(%{field: bad_value})
+  {:error, %Ecto.Changeset{}}
 
   """
   def create_user(attrs \\ %{}) do
+    attrs |> IO.inspect(label: "io inspect user params")
+    {:ok , p} = Map.fetch(attrs, "password")
+    {:ok, email} = Map.fetch(attrs, "email")
+    {:ok, name} = Map.fetch(attrs, "name")
+    attrsNew =
+      %{"email" => email,
+      "name" => name,
+      "password_hash" => Comeonin.Argon2.hashpwsalt(p)
+    }
     %User{}
-    |> User.changeset(attrs)
+    |> User.changeset(attrsNew)
     |> Repo.insert()
-    |> IO.inspect(label: "io inspect user params")
+
   end
 
   @doc """
@@ -61,11 +70,11 @@ defmodule Tasktrack.Users do
 
   ## Examples
 
-      iex> update_user(user, %{field: new_value})
-      {:ok, %User{}}
+  iex> update_user(user, %{field: new_value})
+  {:ok, %User{}}
 
-      iex> update_user(user, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+  iex> update_user(user, %{field: bad_value})
+  {:error, %Ecto.Changeset{}}
 
   """
   def update_user(%User{} = user, attrs) do
@@ -79,11 +88,11 @@ defmodule Tasktrack.Users do
 
   ## Examples
 
-      iex> delete_user(user)
-      {:ok, %User{}}
+  iex> delete_user(user)
+  {:ok, %User{}}
 
-      iex> delete_user(user)
-      {:error, %Ecto.Changeset{}}
+  iex> delete_user(user)
+  {:error, %Ecto.Changeset{}}
 
   """
   def delete_user(%User{} = user) do
@@ -95,8 +104,8 @@ defmodule Tasktrack.Users do
 
   ## Examples
 
-      iex> change_user(user)
-      %Ecto.Changeset{source: %User{}}
+  iex> change_user(user)
+  %Ecto.Changeset{source: %User{}}
 
   """
   def change_user(%User{} = user) do

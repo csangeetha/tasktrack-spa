@@ -17,6 +17,8 @@ function users(state = [], action) {
   switch (action.type) {
     case 'ALL_USERS':
     return [...action.users];
+    case 'CREATE_USER':
+    return [action.user, ...state];
     default:
     return state;
   }

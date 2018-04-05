@@ -6,6 +6,7 @@ import Nav from './nav';
 import TaskFeed from './taskFeed';
 import UserFeed from './userFeed';
 import CreateTask from './create-task';
+import UpdateTask from './update-task';
 
 export default function tasktrack_init(store){
   ReactDOM.render(
@@ -40,6 +41,15 @@ let Tasktrack= connect((state) => state)((props) =>{
                   return false;
                 }})} />
               } />
-            </div>
-          </Router>;
-        })
+              <Route path="/update/:task_id" render={({match}) =>
+                <UpdateTask users={props.users} taskId={match.params.task_id} task={_.filter(props.tasks, (taskVar) =>{
+                    if(taskVar.id){
+                      return match.params.task_id == taskVar.id
+                    }
+                    else {
+                      return false;
+                    }})} />
+                }/>
+              </div>
+            </Router>;
+          })

@@ -48187,7 +48187,7 @@ var SeverAPI = function () {
       var newData = {
         email: data.signup_email,
         name: data.signup_name,
-        password_hash: data.signup_pass
+        password: data.signup_pass
       };
       $.ajax("api/v1/users", {
         method: "post",
@@ -48196,8 +48196,8 @@ var SeverAPI = function () {
         data: JSON.stringify({ user: newData }),
         success: function success(resp) {
           _store2.default.dispatch({
-            type: 'ALL_USERS',
-            users: resp.data
+            type: 'CREATE_USER',
+            user: resp.data
           });
         }
       });
@@ -48227,6 +48227,31 @@ var SeverAPI = function () {
             type: 'CREATE_TASK',
             task: resp.data
           });
+        }
+      });
+    }
+  }, {
+    key: "update_task",
+    value: function update_task(data, id) {
+      var newTime = data.time_taken;
+      if (data.time_taken != "") {
+        newTime = data.time_taken + ":00.000000";
+      }
+      var dataNew = {
+        assigned_to_id: data.assigned_to_id,
+        assigned_by_id: data.assigned_by_id,
+        title: data.title,
+        description: data.description,
+        time_taken: newTime,
+        status: data.status
+      };
+      $.ajax("/api/v1/tasks/" + id, {
+        method: "put",
+        dataType: "json",
+        contentType: "application/json; charset=UTF-8",
+        data: JSON.stringify({ token: data.token, task: dataNew }),
+        success: function success(resp) {
+          request_tasks();
         }
       });
     }
@@ -48666,7 +48691,7 @@ function Nav(props) {
         null,
         _react2.default.createElement(
           _reactRouterDom.NavLink,
-          { to: '/users', href: '#', className: 'nav-link' },
+          { to: '/users', className: 'nav-link' },
           'All Users'
         )
       )
@@ -48687,71 +48712,83 @@ exports.default = (0, _reactRedux.connect)(state2props)(Nav);
 });
 
 require.register("js/components/taskFeed.jsx", function(exports, require, module) {
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = TaskFeed;
 
-var _react = require("react");
+var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactRouterDom = require('react-router-dom');
+
+var _api = require('../api');
+
+var _api2 = _interopRequireDefault(_api);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function deleteTask(id) {
+  console.log(id);
+}
 function Task(params) {
   var task = params.task;
-  function updateTask(ev) {
-    var tgt = $(ev.target);
-  }
+
   return _react2.default.createElement(
-    "div",
-    { className: "cardbody" },
+    'div',
+    { className: 'cardbody' },
     _react2.default.createElement(
-      "div",
-      { className: "row" },
+      'div',
+      { className: 'row' },
       _react2.default.createElement(
-        "div",
-        { className: "col" },
+        'div',
+        { className: 'col' },
         _react2.default.createElement(
-          "div",
-          { className: "card" },
+          'div',
+          { className: 'card' },
           _react2.default.createElement(
-            "div",
-            { className: "card-header" },
-            " ",
+            'div',
+            { className: 'card-header' },
+            ' ',
             task.title,
             _react2.default.createElement(
-              "span",
-              { className: "col-4 offset-9" },
+              'span',
+              { className: 'col-4 offset-9' },
               _react2.default.createElement(
-                "button",
-                { onClick: updateTask },
-                " Edit"
+                'button',
+                null,
+                ' ',
+                _react2.default.createElement(
+                  _reactRouterDom.Link,
+                  { to: "/update/" + task.id },
+                  'Edit'
+                )
               )
             )
           ),
           _react2.default.createElement(
-            "div",
-            { className: "card-body" },
+            'div',
+            { className: 'card-body' },
             _react2.default.createElement(
-              "h6",
-              { className: "card-title" },
+              'h6',
+              { className: 'card-title' },
               task.assigned_to.name
             ),
             _react2.default.createElement(
-              "p",
+              'p',
               null,
               task.description
             ),
             _react2.default.createElement(
-              "p",
+              'p',
               null,
               _react2.default.createElement(
-                "span",
+                'span',
                 null,
-                "Status:  ",
+                'Status:  ',
                 function () {
                   switch (task.status) {
                     case true:
@@ -48764,15 +48801,15 @@ function Task(params) {
                 }()
               ),
               _react2.default.createElement(
-                "span",
-                { className: "col-3 offset-3" },
-                "Time taken: ",
+                'span',
+                { className: 'col-3 offset-3' },
+                'Time taken: ',
                 task.time_taken
               ),
               _react2.default.createElement(
-                "span",
-                { className: "col-3 offset-3" },
-                "Created by: ",
+                'span',
+                { className: 'col-3 offset-3' },
+                'Created by: ',
                 task.assigned_by.name
               )
             )
@@ -48788,17 +48825,17 @@ function TaskFeed(params) {
   });
   console.log(tasks);
   return _react2.default.createElement(
-    "div",
+    'div',
     null,
     _react2.default.createElement(
-      "p",
+      'p',
       null,
-      "\xA0"
+      '\xA0'
     ),
     _react2.default.createElement(
-      "h1",
+      'h1',
       null,
-      "Your Feed"
+      'Your Feed'
     ),
     tasks
   );
@@ -48841,6 +48878,10 @@ var _userFeed2 = _interopRequireDefault(_userFeed);
 var _createTask = require('./create-task');
 
 var _createTask2 = _interopRequireDefault(_createTask);
+
+var _updateTask = require('./update-task');
+
+var _updateTask2 = _interopRequireDefault(_updateTask);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -48886,10 +48927,185 @@ var Tasktrack = (0, _reactRedux.connect)(function (state) {
                 return false;
               }
             }) });
+        } }),
+      _react2.default.createElement(_reactRouterDom.Route, { path: '/update/:task_id', render: function render(_ref2) {
+          var match = _ref2.match;
+          return _react2.default.createElement(_updateTask2.default, { users: props.users, taskId: match.params.task_id, task: _.filter(props.tasks, function (taskVar) {
+              if (taskVar.id) {
+                return match.params.task_id == taskVar.id;
+              } else {
+                return false;
+              }
+            }) });
         } })
     )
   );
 });
+
+});
+
+require.register("js/components/update-task.jsx", function(exports, require, module) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRedux = require('react-redux');
+
+var _reactstrap = require('reactstrap');
+
+var _api = require('../api');
+
+var _api2 = _interopRequireDefault(_api);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function UpdateTask(params) {
+  function submit(ev) {
+    _api2.default.update_task(params.task, params.taskId);
+    clear(ev);
+  }
+  function clear(ev) {
+    params.dispatch({
+      type: 'CLEAR_FORM'
+    });
+  }
+
+  function update(ev) {
+    var tgt = $(ev.target);
+    var data = {};
+    data[tgt.attr('name')] = tgt.val();
+    var action = {
+      type: 'UPDATE_FORM',
+      data: data
+    };
+    console.log(action);
+    params.dispatch(action);
+  }
+  var users = _.map(params.users, function (uu) {
+    return _react2.default.createElement(
+      'option',
+      { key: uu.id, value: uu.id },
+      uu.name
+    );
+  });
+  return _react2.default.createElement(
+    'div',
+    { className: 'card', style: { margin: '4ex' } },
+    _react2.default.createElement(
+      'div',
+      { className: 'card-header bg-success text-white text-center' },
+      _react2.default.createElement(
+        'h4',
+        null,
+        'Update Task'
+      )
+    ),
+    _react2.default.createElement(
+      'div',
+      { className: 'card-body bg-light' },
+      _react2.default.createElement(
+        _reactstrap.FormGroup,
+        null,
+        _react2.default.createElement(
+          _reactstrap.Label,
+          { 'for': 'assigned_to_id' },
+          'Assigned To'
+        ),
+        _react2.default.createElement(
+          _reactstrap.Input,
+          { type: 'select', name: 'assigned_to_id',
+            value: params.task.assigned_to_id, onChange: update },
+          _react2.default.createElement('option', null),
+          users
+        )
+      ),
+      _react2.default.createElement(
+        _reactstrap.FormGroup,
+        null,
+        _react2.default.createElement(
+          _reactstrap.Label,
+          { 'for': 'assigned_by_id' },
+          'Assigned By'
+        ),
+        _react2.default.createElement(
+          _reactstrap.Input,
+          { type: 'select', name: 'assigned_by_id',
+            value: params.task.assigned_by_id, onChange: update },
+          _react2.default.createElement('option', null),
+          users
+        )
+      ),
+      _react2.default.createElement(
+        _reactstrap.FormGroup,
+        null,
+        _react2.default.createElement(
+          _reactstrap.Label,
+          { 'for': 'title' },
+          'Title'
+        ),
+        _react2.default.createElement(_reactstrap.Input, { type: 'text', name: 'title', value: params.task.title,
+          onChange: update })
+      ),
+      _react2.default.createElement(
+        _reactstrap.FormGroup,
+        null,
+        _react2.default.createElement(
+          _reactstrap.Label,
+          { 'for': 'title' },
+          'Description'
+        ),
+        _react2.default.createElement(_reactstrap.Input, { type: 'textarea', name: 'description',
+          value: params.task.description, onChange: update })
+      ),
+      _react2.default.createElement(
+        _reactstrap.FormGroup,
+        null,
+        _react2.default.createElement(
+          _reactstrap.Label,
+          { 'for': 'title' },
+          'Time taken'
+        ),
+        _react2.default.createElement(_reactstrap.Input, { type: 'time', name: 'time_taken', step: '900',
+          value: params.task.time_taken, onChange: update })
+      ),
+      _react2.default.createElement(
+        _reactstrap.FormGroup,
+        null,
+        _react2.default.createElement(
+          _reactstrap.Label,
+          { 'for': 'title' },
+          'Task Complete ?'
+        ),
+        _react2.default.createElement(_reactstrap.Input, { style: { marginLeft: '4ex', width: '3ex', height: '3ex' },
+          type: 'checkbox', name: 'status', value: params.task.status,
+          onChange: update })
+      ),
+      _react2.default.createElement(
+        _reactstrap.Button,
+        { onClick: submit, className: 'bg-primary' },
+        'Update Task'
+      ),
+      _react2.default.createElement(
+        _reactstrap.Button,
+        { onClick: clear, style: { marginLeft: '2ex' } },
+        'Clear'
+      )
+    )
+  );
+}
+
+function state2params(state) {
+  return {
+    task: state.form
+  };
+}
+exports.default = (0, _reactRedux.connect)(state2params)(UpdateTask);
 
 });
 
@@ -49101,6 +49317,8 @@ function users() {
   switch (action.type) {
     case 'ALL_USERS':
       return [].concat(_toConsumableArray(action.users));
+    case 'CREATE_USER':
+      return [action.user].concat(_toConsumableArray(state));
     default:
       return state;
   }

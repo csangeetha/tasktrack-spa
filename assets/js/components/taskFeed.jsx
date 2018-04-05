@@ -1,18 +1,20 @@
 import React from 'react';
-
+import { Link } from 'react-router-dom';
+import api from '../api';
+function deleteTask(id){
+  console.log(id);
+}
 function Task(params) {
   let task=params.task;
-  function updateTask(ev){
-    let tgt = $(ev.target);
 
-  }
+
   return   <div className="cardbody">
     <div className="row">
       <div className="col">
         <div className="card">
           <div className="card-header"> { task.title }
             <span className="col-4 offset-9">
-              <button onClick={updateTask} > Edit</button>
+              <button > <Link to={"/update/" + task.id }>Edit</Link></button>
             </span></div>
             <div className="card-body">
               <h6 className="card-title">{ task.assigned_to.name }</h6>

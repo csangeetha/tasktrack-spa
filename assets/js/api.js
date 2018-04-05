@@ -32,9 +32,9 @@ class SeverAPI {
 
   submit_signup(data){
     let newData = {
-    email: data.signup_email,
-    name: data.signup_name,
-    password_hash: data.signup_pass
+      email: data.signup_email,
+      name: data.signup_name,
+      password: data.signup_pass
     }
     $.ajax("api/v1/users" , {
       method: "post",
@@ -43,8 +43,8 @@ class SeverAPI {
       data: JSON.stringify({user: newData}),
       success :(resp)=> {
         store.dispatch({
-          type: 'ALL_USERS',
-          users: resp.data,
+          type: 'CREATE_USER',
+          user: resp.data,
         });
       }
     });
@@ -78,6 +78,31 @@ class SeverAPI {
     });
   }
 
+  update_task(data , id) {
+    let newTime = data.time_taken
+    if(data.time_taken != "")
+    {
+      newTime = data.time_taken + ":00.000000"
+    }
+    let dataNew = {
+      assigned_to_id: data.assigned_to_id,
+      assigned_by_id: data.assigned_by_id,
+      title: data.title,
+      description: data.description,
+      time_taken: newTime,
+      status: data.status
+    }
+    $.ajax("/api/v1/tasks/"+id, {
+      method: "put",
+      dataType: "json",
+      contentType: "application/json; charset=UTF-8",
+      data: JSON.stringify({ token: data.token, task: dataNew }),
+      success: (resp) => {
+        request_tasks();
+      },
+    });
+  }
+
   submit_login(data) {
     $.ajax("/api/v1/token", {
       method: "post",
@@ -92,6 +117,7 @@ class SeverAPI {
       },
     });
   }
+
 
   update_task(data , id) {
 
