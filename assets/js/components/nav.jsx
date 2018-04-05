@@ -35,9 +35,46 @@ let LoginForm = connect(({login}) => {return {login};})((props) => {
   </div>;
 });
 
-let Session = connect(({token}) => {return {token};})((props) => {
+let Signup = connect(({signup}) => {return {signup};})((props) => {
+  function update(ev) {
+    let tgt = $(ev.target);
+    let data = {};
+    data[tgt.attr('name')] = tgt.val();
+    props.dispatch({
+      type: 'UPDATE_SIGNUP_FORM',
+      data: data,
+    });
+  }
+
+  function create_signup(ev) {
+    api.submit_signup(props.signup);
+    console.log(props.signup);
+  }
+
   return <div className="navbar-text">
-    User id = { props.token.user_id }
+    <Form inline>
+      <FormGroup>
+        <Input type="email" name="signup_email" placeholder="email"
+               value={props.signup.signup_email} onChange={update} />
+      </FormGroup>
+      <FormGroup>
+        <Input type="text" name="signup_name" placeholder="name"
+               value={props.signup.signup_name} onChange={update} />
+      </FormGroup>
+      <FormGroup>
+        <Input type="password" name="signup_pass" placeholder="password"
+               value={props.signup.signup_pass} onChange={update} />
+      </FormGroup>
+      <Button onClick={create_signup}>Sign up</Button>
+    </Form>
+  </div>;
+});
+
+
+let Session = connect(({token}) => {return {token};})((props) => {
+console.log(props.token + " efgskjgskejghsekjgeshgskjehgslekj");
+  return <div className="navbar-text">
+    Welcome, { props.token.user_name }
   </div>;
 });
 
@@ -52,7 +89,7 @@ function Nav(props) {
   }
 
   return (
-    <nav className="navbar navbar-dark bg-dark bg-old navbar-expand">
+    <nav className="navbar navbar-light bg-old navbar-expand">
       <span className="navbar-brand brand">
         Tasktracker
       </span>
@@ -64,6 +101,7 @@ function Nav(props) {
           <NavLink to="/users" href="#" className="nav-link">All Users</NavLink>
         </NavItem>
       </ul>
+      <Signup />
       { session_info }
     </nav>
   );

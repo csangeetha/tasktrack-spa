@@ -12,7 +12,11 @@ defmodule TasktrackWeb.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    with {:ok, %User{} = user} <- Users.create_user(user_params) do
+    user_params |> IO.inspect(label: "io inspect user params")
+    with {:ok, %User{} = user} <- Users.create_user(
+    %{email: Map.fetch(user_params, "email"),
+    name: Map.fetch(user_params, "name"),
+    password_hash: Comeonin.Argon2.hashpwsalt(Map.fetch(user_params, "password_hash"))}) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", user_path(conn, :show, user))

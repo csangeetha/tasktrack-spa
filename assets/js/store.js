@@ -28,7 +28,8 @@ let empty_task = {
   title: "",
   description: "",
   time_taken: "",
-  status: false
+  status: false,
+  token : " "
 }
 
 function form(state = [], action){
@@ -37,6 +38,8 @@ function form(state = [], action){
     return Object.assign({}, state, action.data);
     case 'CLEAR_FORM':
     return empty_task;
+    case 'SET_TOKEN':
+    return Object.assign({}, state, {token: action.token.token});
     default:
     return state;
   }
@@ -45,9 +48,9 @@ function form(state = [], action){
 function token(state = null, action) {
   switch (action.type) {
     case 'SET_TOKEN':
-      return action.token;
+    return action.token;
     default:
-      return state;
+    return state;
   }
 }
 
@@ -56,17 +59,32 @@ let empty_login = {
   pass: "",
 };
 
+let empty_signup = {
+  signup_email : "",
+  signup_name: "",
+  signup_pass: "",
+};
+
 function login(state = empty_login, action) {
   switch (action.type) {
     case 'UPDATE_LOGIN_FORM':
-      return Object.assign({}, state, action.data);
+    return Object.assign({}, state, action.data);
     default:
-      return state;
+    return state;
+  }
+}
+
+function signup(state = empty_signup, action) {
+  switch (action.type) {
+    case 'UPDATE_SIGNUP_FORM':
+    return Object.assign({}, state, action.data);
+    default:
+    return state;
   }
 }
 
 function root_reducer(state0 , action){
-  let reducer = combineReducers({users , tasks , form ,token, login});
+  let reducer = combineReducers({users , tasks , form ,token, login , signup});
   let state1 = reducer(state0, action);
   console.log("state1", state1);
   return deepFreeze(state1);

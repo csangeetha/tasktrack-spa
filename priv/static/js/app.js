@@ -116,6 +116,7 @@
 
 (function() {
 var global = typeof window === 'undefined' ? this : window;
+var process;
 var __makeRelativeRequire = function(require, mappings, pref) {
   var none = {};
   var tryReq = function(name, pref) {
@@ -48181,14 +48182,39 @@ var SeverAPI = function () {
       });
     }
   }, {
+    key: "submit_signup",
+    value: function submit_signup(data) {
+      var newData = {
+        email: data.signup_email,
+        name: data.signup_name,
+        password_hash: data.signup_pass
+      };
+      $.ajax("api/v1/users", {
+        method: "post",
+        dataType: "json",
+        contentType: "application/json; charset=UTF-8",
+        data: JSON.stringify({ user: newData }),
+        success: function success(resp) {
+          _store2.default.dispatch({
+            type: 'ALL_USERS',
+            users: resp.data
+          });
+        }
+      });
+    }
+  }, {
     key: "create_task",
     value: function create_task(data) {
+      var newTime = data.time_taken;
+      if (data.time_taken != "") {
+        newTime = data.time_taken + ":00.000000";
+      }
       var dataNew = {
         assigned_to_id: data.assigned_to_id,
         assigned_by_id: data.assigned_by_id,
         title: data.title,
         description: data.description,
-        time_taken: data.time_taken + ":00.000000",
+        time_taken: newTime,
         status: data.status
       };
       $.ajax("/api/v1/tasks", {
@@ -48221,14 +48247,19 @@ var SeverAPI = function () {
       });
     }
   }, {
-    key: "create_task",
-    value: function create_task(data, id) {
+    key: "update_task",
+    value: function update_task(data, id) {
+
+      var newTime = data.time_taken;
+      if (data.time_taken != "") {
+        newTime = data.time_taken + ":00.000000";
+      }
       var dataNew = {
         assigned_to_id: data.assigned_to_id,
         assigned_by_id: data.assigned_by_id,
         title: data.title,
         description: data.description,
-        time_taken: data.time_taken + ":00.000000",
+        time_taken: newTime,
         status: data.status
       };
       $.ajax("/api/v1/tasks/" + id, {
@@ -48536,15 +48567,68 @@ var LoginForm = (0, _reactRedux.connect)(function (_ref) {
   );
 });
 
-var Session = (0, _reactRedux.connect)(function (_ref2) {
-  var token = _ref2.token;
-  return { token: token };
+var Signup = (0, _reactRedux.connect)(function (_ref2) {
+  var signup = _ref2.signup;
+  return { signup: signup };
 })(function (props) {
+  function update(ev) {
+    var tgt = $(ev.target);
+    var data = {};
+    data[tgt.attr('name')] = tgt.val();
+    props.dispatch({
+      type: 'UPDATE_SIGNUP_FORM',
+      data: data
+    });
+  }
+
+  function create_signup(ev) {
+    _api2.default.submit_signup(props.signup);
+    console.log(props.signup);
+  }
+
   return _react2.default.createElement(
     'div',
     { className: 'navbar-text' },
-    'User id = ',
-    props.token.user_id
+    _react2.default.createElement(
+      _reactstrap.Form,
+      { inline: true },
+      _react2.default.createElement(
+        _reactstrap.FormGroup,
+        null,
+        _react2.default.createElement(_reactstrap.Input, { type: 'email', name: 'signup_email', placeholder: 'email',
+          value: props.signup.signup_email, onChange: update })
+      ),
+      _react2.default.createElement(
+        _reactstrap.FormGroup,
+        null,
+        _react2.default.createElement(_reactstrap.Input, { type: 'text', name: 'signup_name', placeholder: 'name',
+          value: props.signup.signup_name, onChange: update })
+      ),
+      _react2.default.createElement(
+        _reactstrap.FormGroup,
+        null,
+        _react2.default.createElement(_reactstrap.Input, { type: 'password', name: 'signup_pass', placeholder: 'password',
+          value: props.signup.signup_pass, onChange: update })
+      ),
+      _react2.default.createElement(
+        _reactstrap.Button,
+        { onClick: create_signup },
+        'Sign up'
+      )
+    )
+  );
+});
+
+var Session = (0, _reactRedux.connect)(function (_ref3) {
+  var token = _ref3.token;
+  return { token: token };
+})(function (props) {
+  console.log(props.token + " efgskjgskejghsekjgeshgskjehgslekj");
+  return _react2.default.createElement(
+    'div',
+    { className: 'navbar-text' },
+    'Welcome, ',
+    props.token.user_name
   );
 });
 
@@ -48559,7 +48643,7 @@ function Nav(props) {
 
   return _react2.default.createElement(
     'nav',
-    { className: 'navbar navbar-dark bg-dark bg-old navbar-expand' },
+    { className: 'navbar navbar-light bg-old navbar-expand' },
     _react2.default.createElement(
       'span',
       { className: 'navbar-brand brand' },
@@ -48587,6 +48671,7 @@ function Nav(props) {
         )
       )
     ),
+    _react2.default.createElement(Signup, null),
     session_info
   );
 }
@@ -49027,7 +49112,8 @@ var empty_task = {
   title: "",
   description: "",
   time_taken: "",
-  status: false
+  status: false,
+  token: " "
 };
 
 function form() {
@@ -49039,6 +49125,8 @@ function form() {
       return Object.assign({}, state, action.data);
     case 'CLEAR_FORM':
       return empty_task;
+    case 'SET_TOKEN':
+      return Object.assign({}, state, { token: action.token.token });
     default:
       return state;
   }
@@ -49061,6 +49149,12 @@ var empty_login = {
   pass: ""
 };
 
+var empty_signup = {
+  signup_email: "",
+  signup_name: "",
+  signup_pass: ""
+};
+
 function login() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : empty_login;
   var action = arguments[1];
@@ -49073,8 +49167,20 @@ function login() {
   }
 }
 
+function signup() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : empty_signup;
+  var action = arguments[1];
+
+  switch (action.type) {
+    case 'UPDATE_SIGNUP_FORM':
+      return Object.assign({}, state, action.data);
+    default:
+      return state;
+  }
+}
+
 function root_reducer(state0, action) {
-  var reducer = (0, _redux.combineReducers)({ users: users, tasks: tasks, form: form, token: token, login: login });
+  var reducer = (0, _redux.combineReducers)({ users: users, tasks: tasks, form: form, token: token, login: login, signup: signup });
   var state1 = reducer(state0, action);
   console.log("state1", state1);
   return (0, _deepFreeze2.default)(state1);
@@ -49099,7 +49205,7 @@ require.alias("resolve-pathname/cjs/index.js", "resolve-pathname");
 require.alias("symbol-observable/lib/index.js", "symbol-observable");
 require.alias("underscore/underscore.js", "underscore");
 require.alias("value-equal/cjs/index.js", "value-equal");
-require.alias("warning/browser.js", "warning");require.register("___globals___", function(exports, require, module) {
+require.alias("warning/browser.js", "warning");process = require('process');require.register("___globals___", function(exports, require, module) {
   
 
 // Auto-loaded modules from config.npm.globals.

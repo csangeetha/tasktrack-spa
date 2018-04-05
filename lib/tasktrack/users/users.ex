@@ -53,6 +53,7 @@ defmodule Tasktrack.Users do
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
+    |> IO.inspect(label: "io inspect user params")
   end
 
   @doc """
@@ -104,6 +105,6 @@ defmodule Tasktrack.Users do
 
   def get_and_auth_user(name, pass) do
     user = Repo.one(from u in User, where: u.name == ^name)
-    Comeonin.Argon2.check_pass(user, pass)
+    Comeonin.Argon2.check_pass(user, pass) |> IO.inspect(label: "comeonin inspection")
   end
 end
